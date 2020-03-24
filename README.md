@@ -21,6 +21,11 @@ terraform plan
 terraform apply
 terraform output serveo_elastic_dns >| ../ansible/inventory
 popd
+
+pushd
+ansible-galaxy install -r requirements.yml
+ansible-playbook -i inventory -u ubuntu serveo.yml
+popd
 ```
 
 ### Notes
