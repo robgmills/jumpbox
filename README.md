@@ -25,7 +25,9 @@ terraform apply
 terraform output serveo_elastic_dns >| ../ansible/inventory
 popd
 
-pushd
+pushd ansible
+export CERTBOT_DOMAIN=yourdomain.com
+export CERTBOT_EMAIL=YOUR_EMAIL@YOUR_PROVIDER.COM
 ansible-galaxy install -r requirements.yml
 ansible-playbook -i inventory -u ubuntu serveo.yml
 popd

@@ -1,6 +1,7 @@
 ---
 - hosts: all
   become: true
+  gather_facts: false
   tasks:
     - name: Install docker
       apt:
@@ -9,6 +10,22 @@
         state: present
     - name: Install docker-compose
       apt:
+        name: docker-compose
+        state: present
+    - name: Install python-pip module
+      apt:
+        name: python3-pip
+        state: present
+    - name: Cleanup apt
+      apt:
+        autoclean: true
+        autoremove: true
+    - name: Install docker python module
+      pip:
+        name: docker
+        state: present
+    - name: Install docker-compose python module
+      pip:
         name: docker-compose
         state: present
     - name: Add ubuntu user to the docker group
@@ -21,3 +38,36 @@
         dest: /opt
         owner: ubuntu
         group: docker
+    - name: Template the nginx config
+      template:
+        src: templates/nginx/app.conf.j2
+        dest: /opt/docker/data/nginx/app.conf
+        owner: ubuntu
+        group: docker
+        mode: '0644'
+    - name: Template the certbot environment variables
+      template:
+        src: templates/certbot/certbot.sh.j2
+        dest: /etc/profile.d/certbot.sh
+        owner: root
+        group: root
+        mode: '0644'
+    - name: Create and start certbot standalone 
+      docker_compose:
+        project_src: /opt/docker
+        services:
+          - certbot
+      environment:
+        CERTBOT_DOMAIN: "{{ lookup('env','CERTBOT_DOMAIN') }}"
+        CERTBOT_EMAIL: "{{ lookup('env','CERTBOT_EMAIL') }}"
+        CERTBOT_EXTRA_ARGS: "{{ lookup('env','CERTBOT_EXTRA_ARGS') }}"
+    - name: Wait for certbot to finish (port 80 is closed)
+      wait_for:
+        port: 80
+        timeout: 30
+        state: stopped
+    - name: Create and start nginx 
+      docker_compose:
+        project_src: /opt/docker
+        services:
+          - nginx

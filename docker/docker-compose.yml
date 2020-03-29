@@ -1,0 +1,26 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:1.17.9-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - ./data/nginx:/etc/nginx/conf.d
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+  certbot:
+    image: certbot/certbot
+    ports:
+      - "80:80"
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+      - ./data/certbot/log:/var/log/letsencrypt
+    command: >
+      certonly
+      ${CERTBOT_EXTRA_ARGS}
+      --standalone --agree-tos -n
+      -d ${CERTBOT_DOMAIN}
+      --email ${CERTBOT_EMAIL}
