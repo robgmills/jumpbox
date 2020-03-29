@@ -6,6 +6,14 @@ variable "serveo_key_pair" {
   type = string
 }
 
+variable "serveo_budget_email" {
+  type = string
+}
+
+variable "serveo_budget_start" {
+  type = string
+}
+
 #variable "serveo_domain" {
 #  type = string
 #}
@@ -59,6 +67,28 @@ resource "aws_eip" "serveo" {
     Service = "Serveo"
   }
 }
+
+resource "aws_budgets_budget" "serveo" {
+  name              = "Serveo"
+  budget_type       = "COST"
+  limit_amount      = "8.25"
+  limit_unit        = "USD"
+  time_unit         = "MONTHLY"
+  time_period_start = var.serveo_budget_start
+
+  cost_filters = {
+    TagKeyValue = "user:Service$Serveo" 
+  }
+
+  notification {
+    comparison_operator        = "GREATER_THAN"
+    threshold                  = 80
+    threshold_type             = "PERCENTAGE"
+    notification_type          = "FORECASTED"
+    subscriber_email_addresses = [var.serveo_budget_email]
+  }
+}
+
 
 output "serveo_elastic_dns" {
   value = aws_eip.serveo.public_dns

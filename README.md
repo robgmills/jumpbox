@@ -17,6 +17,8 @@ Setup your [AWS credentials and configuration according to the AWS CLI documenta
 pushd terraform
 terraform init
 export TF_VAR_serveo_key_pair="$(ssh-keygen -y -f ~/.ssh/id_rsa)"
+export TF_VAR_serveo_budget_email="YOUR_EMAIL@YOUR_PROVIDER.COM"
+export TF_VAR_serveo_budget_start=$(date +"%Y-%m-%d_%H:%M")
 terraform plan
 terraform apply
 terraform output serveo_elastic_dns >| ../ansible/inventory
