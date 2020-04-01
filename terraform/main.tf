@@ -10,6 +10,10 @@ variable "serveo_budget_email" {
   type = string
 }
 
+variable "serveo_tunnel_source_cidr" {
+  type = string
+}
+
 variable "serveo_budget_start" {
   type = string
 }
@@ -53,6 +57,8 @@ resource "aws_instance" "serveo" {
   monitoring = true  
   key_name = aws_key_pair.serveo.key_name
 
+  security_groups = [ aws_security_group.serveo.name ]
+
   tags = {
     Name = "Serveo"
     Service = "Serveo"
@@ -62,6 +68,47 @@ resource "aws_instance" "serveo" {
 resource "aws_eip" "serveo" {
   instance = aws_instance.serveo.id
   vpc      = true
+
+  tags = {
+    Service = "Serveo"
+  }
+}
+
+resource "aws_security_group" "serveo" {
+  name = "serveo"
+  description = "Allow HTTP/HTTPS traffic from anywhere, restrict SSH traffic from home"
+  
+  ingress {
+    description = "SSH from the tunnel source IP address only"
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = [var.serveo_tunnel_source_cidr]
+  }
+
+  ingress {
+    description = "HTTP from anywhere"
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  ingress {
+    description = "TLS from anywhere"
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "Anything, anywhere, anytime"
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   tags = {
     Service = "Serveo"
