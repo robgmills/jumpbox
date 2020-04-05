@@ -2,23 +2,23 @@ provider "aws" {
   region = var.aws_region
 }
 
-variable "serveo_key_pair" {
+variable "jumpbox_key_pair" {
   type = string
 }
 
-variable "serveo_budget_email" {
+variable "jumpbox_budget_email" {
   type = string
 }
 
-variable "serveo_tunnel_source_cidr" {
+variable "jumpbox_tunnel_source_cidr" {
   type = string
 }
 
-variable "serveo_budget_start" {
+variable "jumpbox_budget_start" {
   type = string
 }
 
-#variable "serveo_domain" {
+#variable "jumpbox_domain" {
 #  type = string
 #}
 
@@ -42,40 +42,40 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "aws_key_pair" "serveo" {
-  key_name_prefix   = "serveo-"
-  public_key = var.serveo_key_pair
+resource "aws_key_pair" "jumpbox" {
+  key_name_prefix   = "jumpbox-"
+  public_key = var.jumpbox_key_pair
 
   tags = {
-    Service = "Serveo"
+    Service = "Jumpbox"
   }
 }
 
-resource "aws_instance" "serveo" {
+resource "aws_instance" "jumpbox" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.nano"
   monitoring = true  
-  key_name = aws_key_pair.serveo.key_name
+  key_name = aws_key_pair.jumpbox.key_name
 
-  security_groups = [ aws_security_group.serveo.name ]
+  security_groups = [ aws_security_group.jumpbox.name ]
 
   tags = {
-    Name = "Serveo"
-    Service = "Serveo"
+    Name = "Jumpbox"
+    Service = "Jumpbox"
   }
 }
 
-resource "aws_eip" "serveo" {
-  instance = aws_instance.serveo.id
+resource "aws_eip" "jumpbox" {
+  instance = aws_instance.jumpbox.id
   vpc      = true
 
   tags = {
-    Service = "Serveo"
+    Service = "Jumpbox"
   }
 }
 
-resource "aws_security_group" "serveo" {
-  name = "serveo"
+resource "aws_security_group" "jumpbox" {
+  name = "jumpbox"
   description = "Allow HTTP/HTTPS traffic from anywhere, restrict SSH traffic from home"
   
   ingress {
@@ -83,7 +83,7 @@ resource "aws_security_group" "serveo" {
     from_port = 22
     to_port = 22
     protocol = "tcp"
-    cidr_blocks = [var.serveo_tunnel_source_cidr]
+    cidr_blocks = [var.jumpbox_tunnel_source_cidr]
   }
 
   ingress {
@@ -111,20 +111,20 @@ resource "aws_security_group" "serveo" {
   }
 
   tags = {
-    Service = "Serveo"
+    Service = "Jumpbox"
   }
 }
 
-resource "aws_budgets_budget" "serveo" {
-  name              = "Serveo"
+resource "aws_budgets_budget" "jumpbox" {
+  name              = "Jumpbox"
   budget_type       = "COST"
   limit_amount      = "8.25"
   limit_unit        = "USD"
   time_unit         = "MONTHLY"
-  time_period_start = var.serveo_budget_start
+  time_period_start = var.jumpbox_budget_start
 
   cost_filters = {
-    TagKeyValue = "user:Service$Serveo" 
+    TagKeyValue = "user:Service$Jumpbox" 
   }
 
   notification {
@@ -132,15 +132,15 @@ resource "aws_budgets_budget" "serveo" {
     threshold                  = 80
     threshold_type             = "PERCENTAGE"
     notification_type          = "FORECASTED"
-    subscriber_email_addresses = [var.serveo_budget_email]
+    subscriber_email_addresses = [var.jumpbox_budget_email]
   }
 }
 
 
-output "serveo_elastic_dns" {
-  value = aws_eip.serveo.public_dns
+output "jumpbox_elastic_dns" {
+  value = aws_eip.jumpbox.public_dns
 }
 
-output "serveo_instance_dns" {
-  value = aws_instance.serveo.public_dns
+output "jumpbox_instance_dns" {
+  value = aws_instance.jumpbox.public_dns
 }

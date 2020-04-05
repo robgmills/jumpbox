@@ -1,6 +1,6 @@
-# Serveo In AWS
+# Serveo-like Jumpbox
 
-Launch an instance of [Serveo](https://serveo.net) in AWS instantly. 
+Bust NAT'd networks and network filewalls to reach a local host.  Launch a "jumpbox" with [Serveo](https://jumpbox.net)-like SSH tunneling and HTTPS forwarding in AWS, instantly. 
 
 (Just add creds!)
 
@@ -16,21 +16,21 @@ Setup your [AWS credentials and configuration according to the AWS CLI documenta
 ```sh
 pushd terraform
 terraform init
-export TF_VAR_serveo_key_pair="$(ssh-keygen -y -f ~/.ssh/id_rsa)"
-export TF_VAR_serveo_budget_email="YOUR_EMAIL@YOUR_PROVIDER.COM"
-export TF_VAR_serveo_budget_start=$(date +"%Y-%m-%d_%H:%M")
-export TF_VAR_serveo_tunnel_source_cidr="$(curl -s ipinfo.io/ip)/32"
+export TF_VAR_jumpbox_key_pair="$(ssh-keygen -y -f ~/.ssh/id_rsa)"
+export TF_VAR_jumpbox_budget_email="YOUR_EMAIL@YOUR_PROVIDER.COM"
+export TF_VAR_jumpbox_budget_start=$(date +"%Y-%m-%d_%H:%M")
+export TF_VAR_jumpbox_tunnel_source_cidr="$(curl -s ipinfo.io/ip)/32"
 terraform plan
 terraform apply
-terraform output serveo_elastic_dns >| ../ansible/inventory
+terraform output jumpbox_elastic_dns >| ../ansible/inventory
 popd
 
 pushd ansible
 export CERTBOT_DOMAIN=yourdomain.com
 export CERTBOT_EMAIL=YOUR_EMAIL@YOUR_PROVIDER.COM
-ansible-playbook -i inventory -u ubuntu serveo.yml
+ansible-playbook -i inventory -u ubuntu jumpbox.yml
 popd
 ```
 
 ### Notes
-Depending on your shell, the `TF_VAR_serveo_key_pair` might not get set properly.  In that case, copy and paste checking for newline or carriage return characters.
+Depending on your shell, the `TF_VAR_jumpbox_key_pair` might not get set properly.  In that case, copy and paste checking for newline or carriage return characters.
