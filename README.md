@@ -1,4 +1,4 @@
-# Serveo-like Jumpbox
+# Jumpbox
 
 Bust NAT'd networks and network filewalls to reach a local host.  Launch a "jumpbox" with [Serveo](https://jumpbox.net)-like SSH tunneling and HTTPS forwarding in AWS, instantly. 
 
