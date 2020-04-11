@@ -9,7 +9,7 @@ HOST=`terraform output -state=terraform/terraform.tfstate jumpbox_elastic_dns`
 CERTBOT_DOMAIN ?= ${HOST}
 CERTBOT_EMAIL ?= ${EMAIL}
 SSHD_AUTHORIZED_KEY ?=${KEY}
-
+LOCAL_PORT ?= 80
 
 all: init setupAWS provisionAWS removeSSHHost createInventory deploy connect
 
@@ -41,7 +41,7 @@ deploy:
 	@ansible-playbook -C -i ansible/inventory -u ubuntu ansible/jumpbox.yml
 
 connect:
-	ssh -vnNT -R 8080:localhost:80 -p 2222 ${USER}@${HOST}
+	ssh -vnNT -R 8080:localhost:{LOCAL_PORT} -p 2222 ${USER}@${HOST}
 
 help:
 	@cat README.md

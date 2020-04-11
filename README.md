@@ -105,3 +105,13 @@ You can also (optionally) pass extra arguments to the `certbot standalone` comma
 ```sh
 make -e CERTBOT_EXTRA_ARGS="--test-cert --dry-run --force-renewal"
 ```
+
+### Change the local port exposed via the SSH tunnel
+
+You can change the local port exposed via the SSH tunnel by setting the value of the `LOCAL_PORT` environment variable when invoking the `connect` target:
+
+```sh
+make -e LOCAL_PORT=8080 connect
+```
+
+By default, this is set to port `80`
