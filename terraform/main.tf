@@ -2,29 +2,13 @@ provider "aws" {
   region = var.aws_region
 }
 
-variable "jumpbox_key_pair" {
-  type = string
-}
-
-variable "jumpbox_budget_email" {
-  type = string
-}
-
 variable "jumpbox_tunnel_source_cidr" {
   type = string
 }
 
-variable "jumpbox_budget_start" {
+variable "jumpbox_key_name" {
   type = string
 }
-
-#variable "jumpbox_domain" {
-#  type = string
-#}
-
-# TODO: 
-# - create security group resource for instance(s) with inbound rules for SSH and HTTPS
-# - create EBS resource with only 4GB of storage and associate to instance
 
 data "aws_ami" "ubuntu" {
   most_recent = true
@@ -42,20 +26,11 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "aws_key_pair" "jumpbox" {
-  key_name_prefix   = "jumpbox-"
-  public_key = var.jumpbox_key_pair
-
-  tags = {
-    Service = "Jumpbox"
-  }
-}
-
 resource "aws_instance" "jumpbox" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.nano"
   monitoring = true  
-  key_name = aws_key_pair.jumpbox.key_name
+  key_name = "jumpbox-20200405021823048000000001"
 
   security_groups = [ aws_security_group.jumpbox.name ]
 
@@ -122,28 +97,6 @@ resource "aws_security_group" "jumpbox" {
     Service = "Jumpbox"
   }
 }
-
-resource "aws_budgets_budget" "jumpbox" {
-  name              = "Jumpbox"
-  budget_type       = "COST"
-  limit_amount      = "8.25"
-  limit_unit        = "USD"
-  time_unit         = "MONTHLY"
-  time_period_start = var.jumpbox_budget_start
-
-  cost_filters = {
-    TagKeyValue = "user:Service$Jumpbox" 
-  }
-
-  notification {
-    comparison_operator        = "GREATER_THAN"
-    threshold                  = 80
-    threshold_type             = "PERCENTAGE"
-    notification_type          = "FORECASTED"
-    subscriber_email_addresses = [var.jumpbox_budget_email]
-  }
-}
-
 
 output "jumpbox_elastic_dns" {
   value = aws_eip.jumpbox.public_dns

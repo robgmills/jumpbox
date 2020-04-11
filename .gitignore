@@ -1,6 +1,7 @@
 *.swp
 *.tfstate
 *.tfstate.backup
+*.tfstate.*.backup
 .terraform/
 ansible/inventory
 ansible/roles
