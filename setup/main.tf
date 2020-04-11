@@ -4,6 +4,7 @@ provider "aws" {
 
 variable "jumpbox_budget_email" {
   type = string
+  default = ""
 }
 
 variable "jumpbox_budget_start" {

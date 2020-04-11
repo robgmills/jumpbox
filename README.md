@@ -16,7 +16,7 @@ Setup your [AWS credentials and configuration according to the AWS CLI documenta
 ```sh
 pushd setup
 export TF_VAR_jumpbox_key_pair=$(ssh-keygen -y -f ~/.ssh/id_rsa)
-export TF_VAR_jumpbox_budget_email="YOUR_EMAIL@YOUR_PROVIDER.COM"
+export TF_VAR_jumpbox_budget_email="YOUR_EMAIL@YOUR_PROVIDER.COM" // optional
 export TF_VAR_jumpbox_budget_start=$(date +"%Y-%m-%d_%H:%M")
 terraform plan
 terraform apply
