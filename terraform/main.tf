@@ -30,7 +30,7 @@ resource "aws_instance" "jumpbox" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.nano"
   monitoring = true  
-  key_name = "jumpbox-20200405021823048000000001"
+  key_name = var.jumpbox_key_name
 
   security_groups = [ aws_security_group.jumpbox.name ]
 
