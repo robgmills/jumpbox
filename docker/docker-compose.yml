@@ -24,3 +24,15 @@ services:
       --standalone --agree-tos -n
       -d ${CERTBOT_DOMAIN}
       --email ${CERTBOT_EMAIL}
+  sshd:
+    image: panubo/sshd:1.2.0
+    ports:
+      - "2222:22"
+    restart: always
+    volumes:
+      - ./data/sshd/host_keys:/etc/ssh/keys
+      - ./data/sshd/authorized_keys:/etc/authorized_keys
+    environment:
+      SSH_USERS: ${SSHD_USER}:24:24
+      GATEWAY_PORTS: "true"
+      TCP_FORWARDING: "true"

@@ -4,3 +4,6 @@
 .terraform/
 ansible/inventory
 ansible/roles
+docker/data/sshd/authorized_keys/
+docker/data/sshd/host_keys/
+

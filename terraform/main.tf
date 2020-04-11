@@ -102,6 +102,14 @@ resource "aws_security_group" "jumpbox" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "SSHD Tunnel"
+    from_port = 2222
+    to_port = 2222
+    protocol = "tcp"
+    cidr_blocks = [var.jumpbox_tunnel_source_cidr]
+  }
+
   egress {
     description = "Anything, anywhere, anytime"
     from_port = 0

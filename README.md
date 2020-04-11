@@ -16,7 +16,7 @@ Setup your [AWS credentials and configuration according to the AWS CLI documenta
 ```sh
 pushd terraform
 terraform init
-export TF_VAR_jumpbox_key_pair="$(ssh-keygen -y -f ~/.ssh/id_rsa)"
+export TF_VAR_jumpbox_key_pair=$(ssh-keygen -y -f ~/.ssh/id_rsa)
 export TF_VAR_jumpbox_budget_email="YOUR_EMAIL@YOUR_PROVIDER.COM"
 export TF_VAR_jumpbox_budget_start=$(date +"%Y-%m-%d_%H:%M")
 export TF_VAR_jumpbox_tunnel_source_cidr="$(curl -s ipinfo.io/ip)/32"
@@ -28,9 +28,7 @@ popd
 pushd ansible
 export CERTBOT_DOMAIN=yourdomain.com
 export CERTBOT_EMAIL=YOUR_EMAIL@YOUR_PROVIDER.COM
+export SSHD_AUTHORIZED_KEY=$(ssh-keygen -y -f ~/.ssh/id_rsa)
 ansible-playbook -i inventory -u ubuntu jumpbox.yml
 popd
 ```
-
-### Notes
-Depending on your shell, the `TF_VAR_jumpbox_key_pair` might not get set properly.  In that case, copy and paste checking for newline or carriage return characters.

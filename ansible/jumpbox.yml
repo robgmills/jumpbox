@@ -56,6 +56,12 @@
         owner: root
         group: root
         mode: '0644'
+    - name: Create authorized_key for user
+      copy:
+        content: "{{ lookup('env', 'SSHD_AUTHORIZED_KEY') }}"
+        dest: "/opt/docker/data/sshd/authorized_keys/{{ lookup('env', 'USER')  }}"
+        owner: root
+        group: root
     - name: Create and start certbot standalone 
       docker_compose:
         project_src: /opt/docker
@@ -70,8 +76,11 @@
         port: 80
         timeout: 30
         state: stopped
-    - name: Create and start nginx 
+    - name: Create and start nginx, sshd 
       docker_compose:
         project_src: /opt/docker
         services:
           - nginx
+          - sshd
+      environment:
+        SSHD_USER: "{{ lookup('env', 'USER') }}"
